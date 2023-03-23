@@ -1,0 +1,72 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="container">
+        <div style="margin-bottom:20px" class="clearfix">
+            <!--            <a class="btn btn-info" href="/user/add/">-->
+            <!--                <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>-->
+            <!--                新增用户(普通方法)-->
+            <!--            </a>-->
+            <a class="btn btn-info" href="/su/add/">
+                <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                新增管理员
+            </a><!--modelform方法-->
+            <!--查找员工-->
+            <form method="get" style="float:right;width:300px">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search for admin..." name="search">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit">Go!</button>
+                    </span>
+                </div><!-- /input-group -->
+            </form>
+        </div>
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                管理员列表
+            </div>
+
+            <!-- Table -->
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+<!--                    <th>ID</th>-->
+                    <th>管理员用户名</th>
+                    <th>密码</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in su_data %}
+                <tr>
+<!--                    <td>{{ item.id }}</td>-->
+                    <td>{{ item.su }}</td>
+<!--                    <td>{{ item.password }}</td>-->
+                    <td>*********</td>
+                    <td>
+                        <a class="btn btn-primary btn-xs" href="/su/{{ item.id }}/edit/">编辑</a>
+                        <a class="btn btn-danger btn-xs" href="/su/{{ item.id }}/del/">删除</a>
+                    </td>
+                    <td>
+                        <a class="btn btn-info btn-xs" href="/su/{{ item.id }}/reset/">重置密码</a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <ul class="pagination">
+            {{ page_list }}
+
+<!--            <li>-->
+<!--                <form method="get" style="float:left;margin-left: 40px">-->
+<!--                    <input style="position: relative;float:left;display: inline-block;width: 60px;border-radius: 0"-->
+<!--                           type="text" class="form-control" placeholder="页码" name="page">-->
+<!--                    <button style="border-radius: 0" class="btn btn-default" type="submit">跳转</button>-->
+<!--                </form>-->
+<!--            </li>-->
+        </ul>
+    </div>
+{% endblock %}

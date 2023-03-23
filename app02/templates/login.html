@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员登录</title>
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.4.1/css/bootstrap.min.css' %}">
+    <style>
+        .sign-in {
+            width: 400px;
+            margin: 180px auto;
+            padding: 10px 0;
+            border: 1px solid #dddddd;
+            border-radius: 10px;
+
+            box-shadow: 2px 2px 5px #aaa;
+        <!-- box-shadow 阴影 水平 垂直 模糊距离 颜色 -->
+        }
+
+        .dynamic {
+            background-image: -webkit-linear-gradient(left, blue, #66ffff 10%, #cc00ff 20%, #CC00CC 30%, #CCCCFF 40%, #00FFFF 50%, #CCCCFF 60%, #CC00CC 70%, #CC00FF 80%, #66FFFF 90%, blue 100%);
+            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text;
+            -webkit-background-size: 200% 100%;
+            -webkit-animation: masked-animation 4s linear infinite;
+        }
+
+        @keyframes masked-animation {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: -100% 0;
+            }
+        }
+
+        h4 {
+            margin-top: 8px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+<form class="form-horizontal sign-in" method="post"> <!-- novalidate -->
+    {% csrf_token %}
+    <h4 align="center" class="dynamic">用 户 登 录</h4>
+
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-8">
+            {{ form.su }}
+        </div>
+        <span style="color:red;">{{ form.username.errors }}</span>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-8">
+            {{ form.password }}
+        </div>
+        <!--        <span style="color:red;">{{ form.password.errors}}</span>-->
+    </div>
+
+    <!--    <div class="form-group">-->
+    <!--        <div class="col-sm-offset-2 col-sm-8">-->
+    <!--        </div>-->
+    <!--    </div>-->
+
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-4">
+            {{ form.img_code }}
+            <span style="color: red;"></span>
+        </div>
+        <div class="col-sm-4">
+            <img id="img_code" src="/img/code/" style="width: 100%">
+        </div>
+    </div>
+
+    <!--    <div class="form-group">-->
+    <!--        <div class="col-sm-offset-2 col-sm-10">-->
+    <!--            <div class="checkbox ">-->
+    <!--                <label><input type="checkbox"> 记住我 </label>-->
+    <!--            </div>-->
+    <!--        </div>-->
+    <!--    </div>-->
+
+    <div class="form-group">
+        <div class="col-sm-offset-2" style="color:red;">{{ form.password.errors }} {{ form.img_code.errors }}</div>
+        <div class="col-sm-offset-8">
+            <button type="submit" class="btn btn-info" style="font-size:40%">login</button>
+        </div>
+    </div>
+
+</form>
+</body>
+</html>

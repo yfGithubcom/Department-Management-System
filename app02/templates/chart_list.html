@@ -1,0 +1,196 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+
+{% block content %}
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">折线图</div>
+        <div class="panel-body">
+            <div id="map1" style="width:100%;height:180px"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="panel panel-default">
+                <div class="panel-heading">柱状图</div>
+                <div class="panel-body">
+                    <div id="map2" style="width:100%;height:400px"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">饼图</div>
+                <div class="panel-body">
+                    <div id="map3" style="width:100%;height:400px"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block js %}
+<script src="{% static 'plugins/echart/echarts.min.js' %}"></script>
+<script type="text/javascript">
+    $(function () {
+        initBar();
+        initPie();
+        initLine();
+    })
+
+    function initBar() {
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('map2'));
+
+        $.ajax({
+            url: '/chart/bar/',
+            type: 'get',
+            dataType: 'JSON',
+            success: function (res) {
+                if (res.status) {
+                    option.title.text = res.data.bar_title_text;
+                    option.legend.data = res.data.bar_legend_data;
+                    option.xAxis.data = res.data.xAxis_data;
+                    option.series = res.data.bar_series;
+                    // 将后台返回的数据，更新到option
+                    myChart.setOption(option);
+                }
+            }
+        })
+
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: '',  // '各部门人数'
+                textAlign: 'auto',
+                left: 'center',
+            },
+            tooltip: {},
+            legend: {
+                data: [],
+                bottom: 0,
+            },
+            xAxis: {  // x轴
+                data: []
+            },
+            yAxis: {},  // y轴
+            series: []
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    }
+
+    function initPie() {
+
+        var myChart = echarts.init(document.getElementById('map3'));
+
+        $.ajax({
+            url: '/chart/pie/',
+            type: 'get',
+            dataType: 'JSON',
+            success: function (res) {
+                if (res.status) {
+                    option.title.text = res.data.pie_title_text;
+                    option.series[0].data = res.data.pie_series_data;
+                    // 将后台返回的数据，更新到option
+                    myChart.setOption(option);
+                }
+            }
+
+        })
+
+        var option = {
+            title: {
+                text: '',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                top: '88%',
+                left: 'center',
+            },
+            series: [
+                {
+                    // name: 'Access From',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: {
+                        borderRadius: 10,
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    },
+                    label: {
+                        show: false,
+                        position: 'center'
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            fontSize: 40,
+                            fontWeight: 'bold'
+                        }
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: []
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+    }
+
+    function initLine() {
+        var myChart = echarts.init(document.getElementById('map1'));
+
+        $.ajax({
+            url: '/chart/line/',
+            type: 'get',
+            dataType: 'JSON',
+            success: function (res) {
+                if (res.status) {
+                    option.title.text = res.data.line_title_text;
+                    option.xAxis.data = res.data.line_xAxis_data;
+                    option.series[0].data = res.data.line_series_data;
+                    // 将后台返回的数据，更新到option
+                    myChart.setOption(option);
+                }
+            }
+        })
+
+        var option = {
+            title: {
+                text: '',
+                textAlign: 'auto',
+                left: 'center',
+            },
+            xAxis: {
+                type: 'category',
+                data: []
+            },
+            yAxis: {
+                type: 'value',
+                minInterval: 1,
+            },
+            series: [
+                {
+                    data: [],
+                    type: 'line'
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+    }
+
+</script>
+{% endblock %}

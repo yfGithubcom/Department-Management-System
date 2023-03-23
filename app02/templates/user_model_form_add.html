@@ -1,0 +1,71 @@
+{% extends 'layout.html' %}
+
+{% load static %}
+
+{% block css %}
+<!--    <link rel="stylesheet"-->
+<!--        href="{% static 'plugins/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css' %}">-->
+    <link rel="stylesheet"
+        href="{% static 'plugins/bootstrap-datepicker-master/dist/css/bootstrap-datepicker3.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">添加员工</h3>
+            </div>
+            <div class="panel-body">
+                <!--form class="form-horizontal" method="post" action="/user/model/form/add/"-->
+                <!-- 关闭浏览器自带的数据校验（novalidate） -->
+                <form class="form-horizontal" method="post" action="/user/add/" novalidate>
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">{{ field.label }}:</label>
+                        <div class="col-sm-8">
+                            {{ field }}
+                            <!--<input type="text" class="form-control" placeholder="用户名" name="user">-->
+                        </div>
+                        <span style="color:red;">{{ field.errors }}</span>  <!-- 错误信息，列表格式 -->
+                    </div>
+                    {% endfor %}
+
+                    <!--
+                            {{ form.user.label }} : {{ form.user }}
+                            {{ form.age.label }} : {{ form.age }}
+                            {{ form.salary.label }} : {{ form.salary }}
+                            {{ form.account.label }} : {{ form.account }}
+                            {{ form.gender.label }} : {{ form.gender }}
+                            {{ form.unit.label }} : {{ form.unit }}
+                    -->
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="submit" class="btn btn-default">提 交</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+<!--<script src="{% static 'plugins/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js' %}"></script>-->
+<!--<script src="{% static 'plugins/bootstrap-datetimepicker-master/js/locales/bootstrap-datetimepicker.zh-CN.js' %}"></script>-->
+<script src="{% static 'plugins/bootstrap-datepicker-master/dist/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static 'plugins/bootstrap-datepicker-master/dist/locales/bootstrap-datepicker.zh-CN.min.js' %}"></script>
+
+<script>
+    $(function () {
+        $('#id_entry_date').datepicker({
+            format: 'yyyy-mm-dd',
+            startDate: '0',
+            language: 'zh-CN',
+            autoclose: true
+        });
+    })
+</script>
+{% endblock %}

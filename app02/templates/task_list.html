@@ -1,0 +1,259 @@
+{% extends 'layout.html' %}
+
+
+{% block content %}
+<div class="container">
+    <!-- 添加按钮 -->
+    <div style="margin-bottom:20px">
+        <button type="button" class="btn btn-info btn-group-sm btn-add" data-toggle="modal">
+            新增任务
+        </button>
+    </div>
+    <!-- 表单组件（add & edit） -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">新增任务</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="panel panel-default">
+                        <!--                        <div class="panel-heading">-->
+                        <!--                            <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>-->
+                        <!--                            表单-->
+                        <!--                        </div>-->
+                        <div class="panel-body">
+                            <form id="myForm">
+                                <div class="clearfix">
+                                    {% csrf_token %}
+
+                                    {% for field in form %}
+                                    <div class="form-group col-sm-6" style="position: relative;margin-bottom: 25px">
+                                        <label>{{ field.label }}</label>
+                                        {{ field }}
+                                        <span class="error-msg"
+                                              style="color: red;position: absolute">{{ field.error }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">返 回</button>
+                    <button id="btnAdd" type="button" class="btn btn-primary">提 交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认 -->
+    <div class="modal fade" id="delModal" tabindex="-1" role="dialog" aria-labelledby="delSmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                <h4 id="delSmallModalLabel">是否撤销该任务？</h4>
+                <p style="margin: 10px">撤销操作不可逆</p>
+                <p style="text-align: right">
+                    <button id="btnDel" type="button" class="btn btn-danger">确 认</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取 消</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 任务列表 -->
+    <div class="panel panel-default">
+        <!-- Default panel contents -->
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+            任务列表
+        </div>
+        <!-- Table -->
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>标题</th>
+                <th>级别</th>
+                <th>负责人</th>
+                <th>领导</th>
+                <th>所属项目</th>
+                <th>任务详情</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in task_data %}
+            <tr task_id="{{item.id}}">
+                <th>{{item.title}}</th>
+                <td>{{item.get_level_display}}</td>
+                <td>{{item.user.user}}</td>
+                <td>{{item.leader.su}}</td>
+                <td>{{item.project.name}}</td>
+                <td>{{item.detail}}</td>
+                <td>
+                    <input task_id="{{item.id}}" class="btn btn-primary btn-xs btn-edit" type="button" value="修改">
+                    <input task_id="{{item.id}}" class="btn btn-danger btn-xs btn-del" type="button" value="撤销">
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+    <!-- 分页组件 -->
+    <ul class="pagination">
+        {{ page_list }}
+    </ul>
+</div>
+{% endblock %}
+
+
+{% block js %}
+<script type="text/javascript">
+    var DelTaskId;
+    var EditTaskId;
+
+    $(function () {
+        //页面加载完成后自动执行
+        bindBtnAddEvent();
+        bindBtnSaveEvent();
+        bindBtnDelEvent();
+        bindConfirmDelEvent();
+        bindBtnEditEvent();
+    })
+
+    function bindBtnAddEvent() {
+        $('.btn-add').click(function () {
+            // 置空EditTaskId
+            EditTaskId = undefined;
+            // 清空对话框
+            $('#myForm')[0].reset();
+
+            $('#myModalLabel').text('新增任务');
+
+            $('#myModal').modal('show');
+        });
+    }
+
+    function bindBtnSaveEvent() {
+        // 确定添加（提交按钮）
+        $('#btnAdd').click(function () {
+            $('.error-msg').empty();
+
+            if (EditTaskId) {
+                // 编辑
+                $.ajax({
+                    url: '/task/' + EditTaskId + '/edit/',
+                    type: 'post',
+                    data: $('#myForm').serialize(),
+                    dataType: 'JSON',
+                    success: function (res) {
+                        if (res.status) {
+                            // alert('任务修改成功');
+                            $('#myForm')[0].reset();
+                            $('#myModal').modal('hide');
+                            // 添加成功后使用js实现页面的刷新
+                            location.reload();
+                        } else {
+                            // 提交数据不合法
+                            $.each(res.error, function (name, data) {
+                                $('#id_' + name).next().text(data[0]);
+                            })
+                        }
+                    },
+                });
+            } else {
+                // 添加
+                $.ajax({
+                    url: '/task/add/',
+                    type: 'post',
+                    data: $('#myForm').serialize(),
+                    dataType: 'JSON',
+                    success: function (res) {
+                        if (res.status) {
+                            // alert('任务添加成功');
+                            // 添加成功后使用js实现页面的刷新
+                            location.reload();
+                        } else {
+                            console.log(res.error);
+                            $.each(res.error, function (name, data) {
+                                console.log(name, data);
+                                $('#id_' + name).next().text(data[0]);
+                            })
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    function bindBtnDelEvent() {
+        $('.btn-del').click(function () {
+            $('#delModal').modal('show');
+            // 获取当前行数据的id 传入后台
+            DelTaskId = $(this).attr('task_id');
+            // console.log(DelTaskId);
+        });
+    }
+
+    function bindConfirmDelEvent() {
+        $('#btnDel').click(function () {
+            // 点击确认
+            $.ajax({
+                url: '/task/' + DelTaskId + '/del/',
+                type: 'get',
+                dataType: 'JSON',
+                success: function (res) {
+                    if (res.status) {
+                        // alert('删除成功');
+                        // 若撤销成功，隐藏提示框
+                        $('#delModal').modal('hide');
+                        $("tr[task_id='" + DelTaskId + "']").remove();
+                        DelTaskId = 0;
+                    } else {
+                        alert(res.error);
+                    }
+                }
+            })
+        });
+    }
+
+    function bindBtnEditEvent() {
+        $('.btn-edit').click(function () {
+            // 点击编辑，获取当前行的id
+            var tid = $(this).attr('task_id');
+            EditTaskId = tid;
+            // 清空对话框
+            $('#myForm')[0].reset();
+            // 通过 Ajax 获取当前行的数据
+            $.ajax({
+                url: '/task/' + tid + '/edit/',
+                method: 'get',
+                // data: {
+                //     tid: tid
+                // },
+                dataType: 'JSON',
+                success: function (res) {
+                    if (res.status) {
+                        // 将数据赋值到对话框中
+                        $.each(res.data, function (name, value) {
+                            $('#id_' + name).val(value)
+                        });
+                        // 修改myModal的标题
+                        $('#myModalLabel').text('您正在对任务进行修改');
+                        // 弹出myModal框
+                        $('#myModal').modal('show');
+                        // console.log(res);
+
+                    } else {
+                        alert(res.error);
+                    }
+                },
+            });
+            // alert('任务已修改');
+        });
+    }
+</script>
+{% endblock %}
